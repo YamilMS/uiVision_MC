@@ -1,0 +1,258 @@
+{
+    "Name": "Subida info ministerio",
+    "CreationDate": "2024-12-29",
+    "Commands": [
+      {
+        "Command": "open",
+        "Target": "https://aplicaciones.ciencia.gob.es/IMV/",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "waitForPageToLoad",
+        "Target": "",
+        "Value": "10000",
+        "Description": ""
+      },
+      {
+        "Command": "type",
+        "Target": "id=usuario.codUsuario",
+        "Value": "Mecides",
+        "Description": ""
+      },
+      {
+        "Command": "type",
+        "Target": "id=usuario.clave",
+        "Value": "Mec2022",
+        "Description": ""
+      },
+      {
+        "Command": "click",
+        "Target": "xpath=//input[@value='Entrar']",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "waitForPageToLoad",
+        "Target": "",
+        "Value": "10000",
+        "Description": ""
+      },
+      {
+        "Command": "click",
+        "Target": "xpath=//input[@value='Siguiente']",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "waitForPageToLoad",
+        "Target": "",
+        "Value": "10000",
+        "Description": ""
+      },
+      {
+        "Command": "csvRead",
+        "Target": "idis.csv",
+        "Value": "",
+        "Description": "Lee la línea 1 (cabecera)."
+      },
+      {
+        "Command": "store",
+        "Target": "2",
+        "Value": "!csvReadLineNumber",
+        "Description": "Indica que la siguiente lectura será la línea 2."
+      },
+      {
+        "Command": "csvRead",
+        "Target": "idis.csv",
+        "Value": "",
+        "Description": "Lee la línea 2, que es la primera fila de datos."
+      },
+      {
+        "Command": "while_v2",
+        "Target": "${!csvReadStatus} == \"OK\"",
+        "Value": "",
+        "Description": "Bucle principal: se repite mientras se puedan leer filas del CSV."
+      },
+      {
+        "Command": "echo",
+        "Target": "Leyendo CSV línea ${!csvReadLineNumber}: ID_AIE=${!COL1}, ID_IDI=${!COL2}",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "if_v2",
+        "Target": "${!COL2} == \"\"",
+        "Value": "",
+        "Description": "Si la columna ID_IDI está vacía, saltar esta fila."
+      },
+      {
+        "Command": "echo",
+        "Target": "Fila sin ID_IDI, se omite.",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "executeScript_Sandbox",
+        "Target": "return Number(${!csvReadLineNumber}) + 1;",
+        "Value": "!csvReadLineNumber",
+        "Description": ""
+      },
+      {
+        "Command": "csvRead",
+        "Target": "idis.csv",
+        "Value": "",
+        "Description": "Leer la siguiente fila del CSV."
+      },
+      {
+        "Command": "gotoLabel",
+        "Target": "finIteracionCSV",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "end",
+        "Target": "",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "echo",
+        "Target": "Procesando ID_IDI=${!COL2}",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "store",
+        "Target": "2",
+        "Value": "rowNumber",
+        "Description": "Asumimos que la fila 1 de la tabla web es cabecera, así que empezamos en 2."
+      },
+      {
+        "Command": "store",
+        "Target": "true",
+        "Value": "searchTable",
+        "Description": "Control para el bucle de la tabla."
+      },
+      {
+        "Command": "while_v2",
+        "Target": "${searchTable}",
+        "Value": "",
+        "Description": "Bucle para recorrer las filas de la tabla."
+      },
+      {
+        "Command": "verifyElementPresent",
+        "Target": "xpath=//table/tbody/tr[${rowNumber}]",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "store",
+        "Target": "${!LastCommandOK}",
+        "Value": "rowExists",
+        "Description": "Si la fila no existe, rowExists = false."
+      },
+      {
+        "Command": "if_v2",
+        "Target": "${rowExists} == false",
+        "Value": "",
+        "Description": "Si no existe la fila, salimos del bucle de tabla."
+      },
+      {
+        "Command": "store",
+        "Target": "false",
+        "Value": "searchTable",
+        "Description": ""
+      },
+      {
+        "Command": "gotoLabel",
+        "Target": "finTabla",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "end",
+        "Target": "",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "storeText",
+        "Target": "xpath=//table/tbody/tr[${rowNumber}]/td[1]",
+        "Value": "webId",
+        "Description": "Captura el ID en la columna 1 de la tabla."
+      },
+      {
+        "Command": "echo",
+        "Target": "Comparando CSV=${!COL2} con Web=${webId}, fila=${rowNumber}",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "if_v2",
+        "Target": "${webId} == ${!COL2}",
+        "Value": "",
+        "Description": "Si coincide, hacemos clic y salimos de la búsqueda."
+      },
+      {
+        "Command": "click",
+        "Target": "xpath=//table/tbody/tr[${rowNumber}]/td/a[contains(@onclick, 'accesoGestionSolicitud')]",
+        "Value": "",
+        "Description": "Clic en la columna correspondiente."
+      },
+      {
+        "Command": "store",
+        "Target": "false",
+        "Value": "searchTable",
+        "Description": ""
+      },
+      {
+        "Command": "end",
+        "Target": "",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "executeScript_Sandbox",
+        "Target": "return Number(${rowNumber}) + 1;",
+        "Value": "rowNumber",
+        "Description": "Avanzamos a la siguiente fila de la tabla."
+      },
+      {
+        "Command": "label",
+        "Target": "finTabla",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "endWhile",
+        "Target": "",
+        "Value": "",
+        "Description": "Fin del bucle de la tabla."
+      },
+      {
+        "Command": "executeScript_Sandbox",
+        "Target": "return Number(${!csvReadLineNumber}) + 1;",
+        "Value": "!csvReadLineNumber",
+        "Description": "Avanzar a la siguiente línea del CSV."
+      },
+      {
+        "Command": "csvRead",
+        "Target": "idis.csv",
+        "Value": "",
+        "Description": "Leer la siguiente fila."
+      },
+      {
+        "Command": "label",
+        "Target": "finIteracionCSV",
+        "Value": "",
+        "Description": ""
+      },
+      {
+        "Command": "endWhile",
+        "Target": "",
+        "Value": "",
+        "Description": "Fin del bucle principal del CSV."
+      }
+    ]
+  }
